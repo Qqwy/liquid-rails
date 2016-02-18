@@ -13,8 +13,18 @@ module Liquid
       end
 
       module ClassMethods
+        #Tries to construct ModelNameDrop from ModelName
+        #And if it could not be found, attempts its parent class, so polymorphism is supported.
         def drop_class
-          "#{self.name}Drop".safe_constantize
+          class_name = self.name
+          while class_name != "Object"
+            begin
+              drop_class = "#{class_name}Drop".constantize
+              return drop_class
+            rescue NameError => e
+              class_name = class_name.parent
+            end
+          end
         end
       end
     end
